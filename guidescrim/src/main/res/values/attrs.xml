@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ScrimView">
+        <attr name="scrim_color" format="color" />
+        <attr name="high_light_ids" format="string" />
+    </declare-styleable>
+
+</resources>
