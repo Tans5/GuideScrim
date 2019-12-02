@@ -14,6 +14,8 @@ import androidx.annotation.ColorInt
  * date: 2019-11-28
  */
 
+typealias ViewGetter = (id: Int) -> View?
+
 class ScrimView : View {
 
 
@@ -30,11 +32,26 @@ class ScrimView : View {
             invalidate()
         }
 
+    var viewGetter: ViewGetter = object : ViewGetter {
+
+        override fun invoke(id: Int): View? {
+            return (context as? Activity)?.findViewById(id)
+        }
+
+    }
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private val viewSize = Rect()
 
-    private var highLightDataArray: Array<out HighLightDrawerData> = emptyArray()
+    private var highLightData: Map<Int, HighLightDrawerData> = emptyMap()
 
-    private var highLightViewsIds: Map<Int, HighLightDrawerData> = emptyMap()
+    /** Need to calculate the area and drawable
+     * @see calculateIdsDrawerData
+     */
+    private var viewIdsHighLightData: Map<Int, HighLightDrawerData> = emptyMap()
 
     constructor(context: Context) : super(context)
 
@@ -57,12 +74,13 @@ class ScrimView : View {
     private fun initAttrs(attrs: AttributeSet?) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ScrimView)
         scrimPaint.color = typedArray.getColor(R.styleable.ScrimView_scrim_color, Color.TRANSPARENT)
-        highLightViewsIds = typedArray.getString(R.styleable.ScrimView_high_light_ids)?.split(",")
-            ?.mapNotNull {
-                convertToIntId(it)
-            }?.map {
-                it to (HighLightDrawerData.RectDrawerData(area = Rect()) as HighLightDrawerData)
-            }?.toMap() ?: emptyMap()
+        viewIdsHighLightData =
+            typedArray.getString(R.styleable.ScrimView_high_light_ids)?.split(",")
+                ?.mapNotNull {
+                    convertToIntId(it)
+                }?.map {
+                    it to (HighLightDrawerData.RectDrawerData(area = Rect()) as HighLightDrawerData)
+                }?.toMap() ?: emptyMap()
         typedArray.recycle()
     }
 
@@ -71,9 +89,13 @@ class ScrimView : View {
      *
      */
     fun setHighLightDrawerData(vararg data: HighLightDrawerData) {
-        this.highLightDataArray = data.map {
-            convertHighLightRectToViewRect(it)
-        }.toTypedArray()
+        setHighLightDrawerData(*data.withIndex().map { it.index to it.value }.toTypedArray())
+    }
+
+    fun setHighLightDrawerData(vararg data: Pair<Int, HighLightDrawerData>) {
+        this.highLightData = data.map { (itemId, itemData) ->
+            itemId to convertHighLightRectToViewRect(itemData)
+        }.toMap()
         invalidate()
     }
 
@@ -81,9 +103,14 @@ class ScrimView : View {
      * @param data's area is the screen location.
      */
     fun addHighLightAreas(vararg data: HighLightDrawerData) {
-        this.highLightDataArray = (this.highLightDataArray.asList() + data.map {
-            convertHighLightRectToViewRect(it)
-        }).toTypedArray()
+        val highLightCount = highLightData.count()
+        addHighLightAreas(*data.withIndex().map { it.index + highLightCount to it.value }.toTypedArray())
+    }
+
+    fun addHighLightAreas(vararg data: Pair<Int, HighLightDrawerData>) {
+        this.highLightData = (this.highLightData + data.map { (itemId, itemData) ->
+            itemId to convertHighLightRectToViewRect(itemData)
+        })
         invalidate()
     }
 
@@ -91,7 +118,7 @@ class ScrimView : View {
      * HighLightDrawerData area is not work, area is influenced by view location.
      */
     fun setHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>) {
-        this.highLightViewsIds = data.toMap()
+        this.viewIdsHighLightData = data.toMap()
         invalidate()
     }
 
@@ -99,20 +126,23 @@ class ScrimView : View {
      * HighLightDrawerData area is not work, area is influenced by view location.
      */
     fun addHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>) {
-        this.highLightViewsIds = this.highLightViewsIds + data.toMap()
+        this.viewIdsHighLightData = this.viewIdsHighLightData + data.toMap()
         invalidate()
     }
 
     fun removeHighLightByIds(vararg ids: Int) {
-        this.highLightViewsIds = this.highLightViewsIds
+        this.viewIdsHighLightData = this.viewIdsHighLightData
+            .filter { (id, _) -> !ids.contains(id) }
+            .toMap()
+        this.highLightData = this.highLightData
             .filter { (id, _) -> !ids.contains(id) }
             .toMap()
         invalidate()
     }
 
     fun clearHightLight() {
-        this.highLightViewsIds = emptyMap()
-        this.highLightDataArray = emptyArray()
+        this.viewIdsHighLightData = emptyMap()
+        this.highLightData = emptyMap()
         invalidate()
     }
 
@@ -137,37 +167,10 @@ class ScrimView : View {
             viewSize.set(0, 0, width, height)
             canvas.drawRect(viewSize, scrimPaint)
 
-            val highLightDataList = this.highLightDataArray.toList()
-            val idsHighLightDataList: List<HighLightDrawerData> =
-                this.highLightViewsIds.mapNotNull { (id, data) ->
-                    val view = (context as? Activity)?.findViewById<View>(id)
-                    if (view == null) {
-                        null
-                    } else {
-                        when (data) {
-                            is HighLightDrawerData.DrawableDrawerData -> {
-                                data.copy(
-                                    area = getViewLocationRect(
-                                        getViewScreenLocationRect(view),
-                                        this
-                                    ),
-                                    drawable = drawViewContent(view)
-                                )
-                            }
-
-                            is HighLightDrawerData.RectDrawerData -> {
-                                data.copy(
-                                    area = getViewLocationRect(
-                                        getViewScreenLocationRect(view),
-                                        this
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
+            val highLightDataList = getHighLightDataList()
+            val idsHighLightDataList = calculateIdsDrawerData()
             val highLightDrawer = this.highLightDrawer
-            for (data in highLightDataList + idsHighLightDataList) {
+            for ((_, data) in highLightDataList + idsHighLightDataList) {
                 when (data) {
                     is HighLightDrawerData.DrawableDrawerData -> {
                         highLightDrawer.drawDrawable(data, canvas)
@@ -180,6 +183,40 @@ class ScrimView : View {
             }
             canvas.restoreToCount(sc)
         }
+    }
+
+    fun calculateIdsDrawerData(): Map<Int, HighLightDrawerData> {
+        return this.viewIdsHighLightData.mapNotNull { (id, data) ->
+            val view = viewGetter(id)
+            if (view == null) {
+                null
+            } else {
+                when (data) {
+                    is HighLightDrawerData.DrawableDrawerData -> {
+                        id to data.copy(
+                            area = getViewLocationRect(
+                                getViewScreenLocationRect(view),
+                                this
+                            ),
+                            drawable = drawViewContent(view)
+                        )
+                    }
+
+                    is HighLightDrawerData.RectDrawerData -> {
+                        id to data.copy(
+                            area = getViewLocationRect(
+                                getViewScreenLocationRect(view),
+                                this
+                            )
+                        )
+                    }
+                }
+            }
+        }.toMap()
+    }
+
+    fun getHighLightDataList(): Map<Int, HighLightDrawerData> {
+        return this.highLightData
     }
 
     private fun convertToIntId(idString: String?): Int? {
@@ -263,7 +300,8 @@ class ScrimView : View {
                     fixedArea.top.toFloat(),
                     fixedArea.right.toFloat(),
                     fixedArea.bottom.toFloat(),
-                    data.radius, data.radius, rectHighLightPaint)
+                    data.radius, data.radius, rectHighLightPaint
+                )
 
                 if (data.borderData != null) {
                     highLightBorderPaint.color = data.borderData.color
@@ -273,7 +311,8 @@ class ScrimView : View {
                         fixedArea.top.toFloat(),
                         fixedArea.right.toFloat(),
                         fixedArea.bottom.toFloat(),
-                        data.radius, data.radius, highLightBorderPaint)
+                        data.radius, data.radius, highLightBorderPaint
+                    )
                 }
             }
 
