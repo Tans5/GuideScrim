@@ -16,8 +16,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         scrim_view.addHighLightViewIds(R.id.hello_tv to ScrimView.Companion.HighLightDrawerData.RectDrawerData(
             offsets = Rect(10, 10, 10, 10),
-            radius = 10f,
-            borderData = ScrimView.Companion.HighLightDrawerData.RectDrawerData.BorderData(color = Color.GRAY)
+            radius = 25f
+            ,borderData = ScrimView.Companion.HighLightDrawerData.RectDrawerData.BorderData(color = Color.RED)
         ))
     }
 }

@@ -315,7 +315,7 @@ class ScrimView : View {
         class DefaultHighLightDrawer(
             val rectHighLightPaint: Paint = Paint().apply {
                 color = Color.TRANSPARENT
-                style = Paint.Style.FILL
+                style = Paint.Style.FILL_AND_STROKE
                 isAntiAlias = true
                 xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
             },
@@ -329,23 +329,25 @@ class ScrimView : View {
 
             override fun drawRect(data: HighLightDrawerData.RectDrawerData, canvas: Canvas) {
                 val fixedArea = data.getAreaWithOffsets()
-                canvas.drawRoundRect(
+                rectHighLightPaint.pathEffect = CornerPathEffect(data.radius)
+                canvas.drawRect(
                     fixedArea.left.toFloat(),
                     fixedArea.top.toFloat(),
                     fixedArea.right.toFloat(),
                     fixedArea.bottom.toFloat(),
-                    data.radius, data.radius, rectHighLightPaint
+                    rectHighLightPaint
                 )
 
                 if (data.borderData != null) {
                     highLightBorderPaint.color = data.borderData.color
                     highLightBorderPaint.strokeWidth = data.borderData.width.toFloat()
-                    canvas.drawRoundRect(
+                    highLightBorderPaint.pathEffect = CornerPathEffect(data.radius)
+                    canvas.drawRect(
                         fixedArea.left.toFloat(),
                         fixedArea.top.toFloat(),
                         fixedArea.right.toFloat(),
                         fixedArea.bottom.toFloat(),
-                        data.radius, data.radius, highLightBorderPaint
+                        highLightBorderPaint
                     )
                 }
             }
