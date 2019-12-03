@@ -87,61 +87,78 @@ class ScrimView : View {
         typedArray.recycle()
     }
 
+    fun updateScrimColor(@ColorInt color: Int, invalidate: Boolean = true) {
+        scrimPaint.color = color
+        if (invalidate) {
+            invalidate()
+        }
+    }
+
     /**
      *  @param data's area is the screen location.
      *
      */
-    fun setHighLightDrawerData(vararg data: HighLightDrawerData) {
-        setHighLightDrawerData(*data.withIndex().map { it.index to it.value }.toTypedArray())
+    fun setHighLightDrawerData(vararg data: HighLightDrawerData, invalidate: Boolean = true) {
+        setHighLightDrawerData(data = *data.withIndex().map { it.index to it.value }.toTypedArray(), invalidate = invalidate)
     }
 
-    fun setHighLightDrawerData(vararg data: Pair<Int, HighLightDrawerData>) {
+    fun setHighLightDrawerData(vararg data: Pair<Int, HighLightDrawerData>, invalidate: Boolean = true) {
         this.highLightData = data.map { (itemId, itemData) ->
             itemId to convertHighLightRectToViewRect(itemData)
         }.toMap()
-        invalidate()
+        if (invalidate) {
+            invalidate()
+        }
     }
 
     /**
      * @param data's area is the screen location.
      */
-    fun addHighLightAreas(vararg data: HighLightDrawerData) {
+    fun addHighLightAreas(vararg data: HighLightDrawerData, invalidate: Boolean = true) {
         val highLightCount = highLightData.count()
-        addHighLightAreas(*data.withIndex().map { it.index + highLightCount to it.value }.toTypedArray())
+        addHighLightAreas(data = *data.withIndex().map { it.index + highLightCount to it.value }.toTypedArray(), invalidate = invalidate)
     }
 
-    fun addHighLightAreas(vararg data: Pair<Int, HighLightDrawerData>) {
+    fun addHighLightAreas(vararg data: Pair<Int, HighLightDrawerData>, invalidate: Boolean = true) {
         this.highLightData = (this.highLightData + data.map { (itemId, itemData) ->
             itemId to convertHighLightRectToViewRect(itemData)
         })
-        invalidate()
+        if (invalidate) {
+            invalidate()
+        }
     }
 
     /**
      * HighLightDrawerData area is not work, area is influenced by view location.
      */
-    fun setHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>) {
+    fun setHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>, invalidate: Boolean = true) {
         this.viewIdsHighLightData = data.map { (id, data) -> id to (false to data)  }.toMap()
-        invalidate()
+        if (invalidate) {
+            invalidate()
+        }
     }
 
     /**
      * HighLightDrawerData area is not work, area is influenced by view location.
      */
-    fun addHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>) {
+    fun addHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>, invalidate: Boolean = true) {
         this.viewIdsHighLightData = this.viewIdsHighLightData + data
             .map { (id, data) -> id to (false to data) }.toMap()
-        invalidate()
+        if (invalidate) {
+            invalidate()
+        }
     }
 
-    fun removeHighLightByIds(vararg ids: Int) {
+    fun removeHighLightByIds(vararg ids: Int, invalidate: Boolean = true) {
         this.viewIdsHighLightData = this.viewIdsHighLightData
             .filter { (id, _) -> !ids.contains(id) }
             .toMap()
         this.highLightData = this.highLightData
             .filter { (id, _) -> !ids.contains(id) }
             .toMap()
-        invalidate()
+        if (invalidate) {
+            invalidate()
+        }
     }
 
     fun getHighLightDataById(id: Int): HighLightDrawerData? {
@@ -164,10 +181,12 @@ class ScrimView : View {
         }
     }
 
-    fun clearHightLight() {
+    fun clearHightLight(invalidate: Boolean = true) {
         this.viewIdsHighLightData = emptyMap()
         this.highLightData = emptyMap()
-        invalidate()
+        if (invalidate) {
+            invalidate()
+        }
     }
 
     private fun convertHighLightRectToViewRect(data: HighLightDrawerData): HighLightDrawerData {
