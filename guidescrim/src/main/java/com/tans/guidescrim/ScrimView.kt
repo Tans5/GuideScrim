@@ -16,6 +16,9 @@ import androidx.annotation.ColorInt
 
 typealias ViewGetter = (id: Int) -> View?
 
+// Boolean: has calculate this area or drawable.
+typealias IdsHighLightDrawerData = Pair<Boolean, ScrimView.Companion.HighLightDrawerData>
+
 class ScrimView : View {
 
 
@@ -49,9 +52,9 @@ class ScrimView : View {
     private var highLightData: Map<Int, HighLightDrawerData> = emptyMap()
 
     /** Need to calculate the area and drawable
-     * @see calculateIdsDrawerData
+     * @see calculateAllIdsDrawerData
      */
-    private var viewIdsHighLightData: Map<Int, HighLightDrawerData> = emptyMap()
+    private var viewIdsHighLightData: Map<Int, IdsHighLightDrawerData> = emptyMap()
 
     constructor(context: Context) : super(context)
 
@@ -79,7 +82,7 @@ class ScrimView : View {
                 ?.mapNotNull {
                     convertToIntId(it)
                 }?.map {
-                    it to (HighLightDrawerData.RectDrawerData(area = Rect()) as HighLightDrawerData)
+                    it to (false to (HighLightDrawerData.RectDrawerData(area = Rect()) as HighLightDrawerData))
                 }?.toMap() ?: emptyMap()
         typedArray.recycle()
     }
@@ -118,7 +121,7 @@ class ScrimView : View {
      * HighLightDrawerData area is not work, area is influenced by view location.
      */
     fun setHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>) {
-        this.viewIdsHighLightData = data.toMap()
+        this.viewIdsHighLightData = data.map { (id, data) -> id to (false to data)  }.toMap()
         invalidate()
     }
 
@@ -126,7 +129,8 @@ class ScrimView : View {
      * HighLightDrawerData area is not work, area is influenced by view location.
      */
     fun addHighLightViewIds(vararg data: Pair<Int, HighLightDrawerData>) {
-        this.viewIdsHighLightData = this.viewIdsHighLightData + data.toMap()
+        this.viewIdsHighLightData = this.viewIdsHighLightData + data
+            .map { (id, data) -> id to (false to data) }.toMap()
         invalidate()
     }
 
@@ -138,6 +142,26 @@ class ScrimView : View {
             .filter { (id, _) -> !ids.contains(id) }
             .toMap()
         invalidate()
+    }
+
+    fun getHighLightDataById(id: Int): HighLightDrawerData? {
+        val viewIdsHighLightData = this.viewIdsHighLightData
+        val highLightData = this.highLightData
+        return when {
+            viewIdsHighLightData.containsKey(id) -> {
+                viewIdsHighLightData[id]?.let {
+                    calculateIdsDrawerData(id, it).second
+                }
+            }
+
+            highLightData.containsKey(id) -> {
+                highLightData[id]
+            }
+
+            else -> {
+                null
+            }
+        }
     }
 
     fun clearHightLight() {
@@ -168,9 +192,10 @@ class ScrimView : View {
             canvas.drawRect(viewSize, scrimPaint)
 
             val highLightDataList = getHighLightDataList()
-            val idsHighLightDataList = calculateIdsDrawerData()
+            val idsHighLightDataList = calculateAllIdsDrawerData()
+            this.viewIdsHighLightData = idsHighLightDataList
             val highLightDrawer = this.highLightDrawer
-            for ((_, data) in highLightDataList + idsHighLightDataList) {
+            for ((_, data) in highLightDataList + idsHighLightDataList.map { it.key to it.value.second }) {
                 when (data) {
                     is HighLightDrawerData.DrawableDrawerData -> {
                         highLightDrawer.drawDrawable(data, canvas)
@@ -185,15 +210,24 @@ class ScrimView : View {
         }
     }
 
-    fun calculateIdsDrawerData(): Map<Int, HighLightDrawerData> {
+    fun calculateAllIdsDrawerData(forceCalculate: Boolean = false): Map<Int, IdsHighLightDrawerData> {
         return this.viewIdsHighLightData.mapNotNull { (id, data) ->
+            id to calculateIdsDrawerData(id, data, forceCalculate)
+        }.toMap()
+    }
+
+    fun calculateIdsDrawerData(id: Int, idData: IdsHighLightDrawerData, forceCalculate: Boolean = false): IdsHighLightDrawerData {
+        val (hasCalculate, data) = idData
+        return if (hasCalculate && !forceCalculate) {
+            idData
+        } else {
             val view = viewGetter(id)
             if (view == null) {
-                null
+                idData
             } else {
                 when (data) {
                     is HighLightDrawerData.DrawableDrawerData -> {
-                        id to data.copy(
+                        true to data.copy(
                             area = getViewLocationRect(
                                 getViewScreenLocationRect(view),
                                 this
@@ -203,7 +237,7 @@ class ScrimView : View {
                     }
 
                     is HighLightDrawerData.RectDrawerData -> {
-                        id to data.copy(
+                        true to data.copy(
                             area = getViewLocationRect(
                                 getViewScreenLocationRect(view),
                                 this
@@ -212,7 +246,7 @@ class ScrimView : View {
                     }
                 }
             }
-        }.toMap()
+        }
     }
 
     fun getHighLightDataList(): Map<Int, HighLightDrawerData> {
