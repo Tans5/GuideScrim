@@ -37,6 +37,66 @@ fun getViewPositionPoint(point: Point, view: View): Point {
     return Point(point.x - viewCoordinates[0], point.y - viewCoordinates[1])
 }
 
+fun bottomOfViewPoint(
+    view: View,
+    offsetTop: Int = 0,
+    centerHorizontal: Boolean = false,
+    selfSize: Rect = Rect()
+): Point {
+    val viewRect = getViewScreenLocationRect(view)
+    return if (centerHorizontal) {
+        val offsetX = (viewRect.width() - selfSize.width()) / 2
+        Point(viewRect.left + offsetX, viewRect.bottom + offsetTop)
+    } else {
+        Point(viewRect.left, viewRect.bottom + offsetTop)
+    }
+}
+
+fun rightOfViewPoint(
+    view: View,
+    offsetLeft: Int = 0,
+    centerVertical: Boolean = false,
+    selfSize: Rect = Rect()
+): Point {
+    val viewRect = getViewScreenLocationRect(view)
+    return if (centerVertical) {
+        val offsetY = (viewRect.height() - selfSize.height()) / 2
+        Point(viewRect.left + offsetLeft, viewRect.right + offsetY)
+    } else {
+        Point(viewRect.left + offsetLeft, viewRect.right)
+    }
+}
+
+fun topOfViewPoint(
+    view: View,
+    offsetBottom: Int = 0,
+    centerHorizontal: Boolean = false,
+    selfSize: Rect = Rect()
+): Point {
+    val viewRect = getViewScreenLocationRect(view)
+    return if (centerHorizontal) {
+        val offsetX = (viewRect.width() - selfSize.width()) / 2
+        Point(viewRect.left + offsetX, viewRect.top - selfSize.height() - offsetBottom)
+    } else {
+        Point(viewRect.left, viewRect.top - selfSize.height() - offsetBottom)
+    }
+}
+
+fun leftOfViewPoint(
+    view: View,
+    offsetRight: Int = 0,
+    centerVertical: Boolean = false,
+    selfSize: Rect = Rect()
+): Point {
+    val viewRect = getViewScreenLocationRect(view)
+    return if (centerVertical) {
+        val offsetX = (viewRect.width() - selfSize.width()) / 2
+        Point(viewRect.left - selfSize.width() - offsetRight, viewRect.top + offsetX)
+    } else {
+        Point(viewRect.left - selfSize.width() - offsetRight, viewRect.top)
+    }
+}
+
 fun drawViewContent(view: View): BitmapDrawable {
     val context: Context = view.context
     val bitmap: Bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight,

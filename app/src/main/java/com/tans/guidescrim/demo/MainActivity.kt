@@ -12,6 +12,7 @@ import com.tans.guidescrim.guidescrims.SimpleGuideScrim
 import kotlinx.android.synthetic.main.activity_main.*
 import com.tans.guidescrim.guidescrims.plus
 import com.tans.guidescrim.ScrimView.Companion.HighLightDrawerData
+import com.tans.guidescrim.bottomOfViewPoint
 import com.tans.guidescrim.dialogs.toSimpleContainerGuideScrimDialog
 import com.tans.guidescrim.getViewScreenLocationRect
 import com.tans.guidescrim.guidescrims.ContainerGuideScrim
@@ -42,8 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         val containerGuideScrim = ContainerGuideScrim.Companion.Builder()
             .childrenLayoutIdsAndPosition {
-                val rect = getViewScreenLocationRect(hello_tv)
-                mapOf(R.layout.layout_test_container_child to Point(rect.left, rect.bottom + 100))
+                mapOf(R.layout.layout_test_container_child to bottomOfViewPoint(app_name_tv2))
             }
             .build()
 
