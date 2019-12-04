@@ -31,5 +31,7 @@ class SimpleGuideScrimDialog(ownerActivity: FragmentActivity,
         return rootView.findViewById<ScrimView>(R.id.scrim_view)
     }
 
-
 }
+
+fun GuideScrim.toSimpleGuideDialog(activity: FragmentActivity, theme: Int = R.style.ScrimGuideDialogTheme)
+        : SimpleGuideScrimDialog = SimpleGuideScrimDialog(ownerActivity = activity, dialogTheme = theme, guideScrim = this)

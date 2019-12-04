@@ -3,6 +3,7 @@ package com.tans.guidescrim
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.view.View
@@ -28,6 +29,12 @@ fun getViewLocationRect(rect: Rect, view: View): Rect {
     view.getLocationOnScreen(viewCoordinates)
     return Rect(rect.left - viewCoordinates[0], rect.top - viewCoordinates[1],
         rect.right - viewCoordinates[0], rect.bottom - viewCoordinates[1])
+}
+
+fun getViewPositionPoint(point: Point, view: View): Point {
+    val viewCoordinates = IntArray(2)
+    view.getLocationOnScreen(viewCoordinates)
+    return Point(point.x - viewCoordinates[0], point.y - viewCoordinates[1])
 }
 
 fun drawViewContent(view: View): BitmapDrawable {

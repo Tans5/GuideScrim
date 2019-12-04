@@ -1,6 +1,7 @@
 package com.tans.guidescrim.guidescrims
 
 
+import android.graphics.Color
 import androidx.fragment.app.FragmentActivity
 import com.tans.guidescrim.R
 import com.tans.guidescrim.ScrimView
@@ -35,7 +36,35 @@ interface GuideScrim{
         scrimView?.removeHighLightByIds(*(highLightData + highLightViewIds).map { it.first }.toIntArray())
     }
 
-}
+    companion object {
+        abstract class Builder<T: GuideScrim> {
+            protected var highLightData: Array<Pair<Int, ScrimView.Companion.HighLightDrawerData>> = emptyArray()
+            protected var highLightViewIds: Array<Pair<Int, ScrimView.Companion.HighLightDrawerData>> = emptyArray()
+            protected var viewGetter: ViewGetter = { null }
+            protected var scrimColor: Int = Color.TRANSPARENT
 
-fun GuideScrim.toSimpleGuideDialog(activity: FragmentActivity, theme: Int = R.style.ScrimGuideDialogTheme)
-        : SimpleGuideScrimDialog = SimpleGuideScrimDialog(ownerActivity = activity, dialogTheme = theme, guideScrim = this)
+            fun highLightData(highLightData: Array<Pair<Int, ScrimView.Companion.HighLightDrawerData>>): Builder<T> {
+                this.highLightData = highLightData
+                return this
+            }
+
+            fun highLightViewIds(highLightViewIds: Array<Pair<Int, ScrimView.Companion.HighLightDrawerData>>): Builder<T> {
+                this.highLightViewIds = highLightViewIds
+                return this
+            }
+
+            fun viewGetter(viewGetter: ViewGetter): Builder<T> {
+                this.viewGetter = viewGetter
+                return this
+            }
+
+            fun scrimColor(scrimColor: Int): Builder<T> {
+                this.scrimColor = scrimColor
+                return this
+            }
+
+            abstract fun build(): T
+        }
+    }
+
+}

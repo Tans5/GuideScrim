@@ -20,7 +20,7 @@ abstract class GuideScrimDialog(private val ownerActivity: FragmentActivity,
                                 private val dialogTheme: Int = R.style.ScrimGuideDialogTheme) : DialogFragment() {
 
 
-    var scrimView: ScrimView? = null
+    protected var scrimView: ScrimView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setStyle(STYLE_NORMAL, dialogTheme)

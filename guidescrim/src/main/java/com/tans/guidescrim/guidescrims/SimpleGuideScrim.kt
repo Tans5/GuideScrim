@@ -16,34 +16,9 @@ class SimpleGuideScrim(override val highLightData: Array<Pair<Int, HighLightDraw
 
     companion object {
 
-        class Builder() {
+        class Builder : GuideScrim.Companion.Builder<SimpleGuideScrim>() {
 
-            private var highLightData: Array<Pair<Int, HighLightDrawerData>> = emptyArray()
-            private var highLightViewIds: Array<Pair<Int, HighLightDrawerData>> = emptyArray()
-            private var viewGetter: ViewGetter = { null }
-            private var scrimColor: Int = Color.TRANSPARENT
-
-            fun highLightData(highLightData: Array<Pair<Int, HighLightDrawerData>>): Builder {
-                this.highLightData = highLightData
-                return this
-            }
-
-            fun highLightViewIds(highLightViewIds: Array<Pair<Int, HighLightDrawerData>>): Builder {
-                this.highLightViewIds = highLightViewIds
-                return this
-            }
-
-            fun viewGetter(viewGetter: ViewGetter): Builder {
-                this.viewGetter = viewGetter
-                return this
-            }
-
-            fun scrimColor(scrimColor: Int): Builder {
-                this.scrimColor = scrimColor
-                return this
-            }
-
-            fun build(): SimpleGuideScrim = SimpleGuideScrim(
+            override fun build(): SimpleGuideScrim = SimpleGuideScrim(
                 highLightData = this.highLightData,
                 highLightViewIds = this.highLightViewIds,
                 viewGetter = this.viewGetter,

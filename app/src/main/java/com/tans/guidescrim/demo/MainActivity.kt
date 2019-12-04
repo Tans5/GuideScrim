@@ -1,6 +1,7 @@
 package com.tans.guidescrim.demo
 
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,10 +9,12 @@ import androidx.core.content.ContextCompat
 import com.tans.guidescrim.R
 import com.tans.guidescrim.ScrimView
 import com.tans.guidescrim.guidescrims.SimpleGuideScrim
-import com.tans.guidescrim.guidescrims.toSimpleGuideDialog
 import kotlinx.android.synthetic.main.activity_main.*
 import com.tans.guidescrim.guidescrims.plus
 import com.tans.guidescrim.ScrimView.Companion.HighLightDrawerData
+import com.tans.guidescrim.dialogs.toSimpleContainerGuideScrimDialog
+import com.tans.guidescrim.getViewScreenLocationRect
+import com.tans.guidescrim.guidescrims.ContainerGuideScrim
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,9 +40,16 @@ class MainActivity : AppCompatActivity() {
             .highLightViewIds(arrayOf(R.id.app_name_tv to HighLightDrawerData.RectDrawerData()))
             .build()
 
-        val guideScrim = simpleScrim1 + simpleScrim2 + simpleScrim3
+        val containerGuideScrim = ContainerGuideScrim.Companion.Builder()
+            .childrenLayoutIdsAndPosition {
+                val rect = getViewScreenLocationRect(hello_tv)
+                mapOf(R.layout.layout_test_container_child to Point(rect.left, rect.bottom + 100))
+            }
+            .build()
 
-        val dialog = guideScrim.toSimpleGuideDialog(this)
+        val guideScrim = simpleScrim1 + simpleScrim2 + simpleScrim3 + containerGuideScrim
+
+        val dialog = guideScrim.toSimpleContainerGuideScrimDialog(this)
         root_view.setOnClickListener {
             dialog.show()
         }
