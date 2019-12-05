@@ -61,9 +61,9 @@ fun rightOfViewPoint(
     val viewRect = getViewScreenLocationRect(view)
     return if (centerVertical) {
         val offsetY = (viewRect.height() - selfSize.height()) / 2
-        Point(viewRect.left + offsetLeft, viewRect.right + offsetY)
+        Point(viewRect.right + offsetLeft, viewRect.top + offsetY)
     } else {
-        Point(viewRect.left + offsetLeft, viewRect.right)
+        Point(viewRect.right + offsetLeft, viewRect.top)
     }
 }
 

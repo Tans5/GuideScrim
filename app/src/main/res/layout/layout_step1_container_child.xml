@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="← Guide: Step1"
+        android:layout_marginStart="10dp"
+        android:textSize="20sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/pre_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="previous"
+        android:layout_marginStart="10dp" />
+
+</LinearLayout>
