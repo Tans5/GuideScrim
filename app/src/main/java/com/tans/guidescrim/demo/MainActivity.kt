@@ -1,7 +1,7 @@
 package com.tans.guidescrim.demo
 
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.Point
 import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
             .highLightViewIds(arrayOf(R.id.scrim_event_dialog_bt to HighLightDrawerData.RectDrawerData()))
             .build()
 
-        val containerGuideScrim = ContainerGuideScrim.Companion.Builder()
+        val containerGuideScrim = SimpleContainerGuideScrim.Companion.Builder()
             .childrenLayoutIdsAndPosition {
                 mapOf(R.layout.layout_test_container_child to bottomOfViewPoint(combine_dialog_bt))
             }
@@ -68,5 +68,10 @@ class MainActivity : AppCompatActivity() {
         combine_dialog_bt.setOnClickListener {
             combineDialog.show()
         }
+
+        step_activity_bt.setOnClickListener {
+            startActivity(Intent(this, StepActivity::class.java))
+        }
+
     }
 }

@@ -12,7 +12,7 @@ import com.tans.guidescrim.ViewGetter
  * date: 2019-12-04
  */
 
-class ClickEventGuideScrim(
+class SimpleClickEventGuideScrim(
     private val guideScrim: GuideScrim,
     override val scrimClickData: () -> Map<Int, Pair<Rect, ClickHandler>> = { emptyMap() },
     override val containerClickData: Map<Int, ClickHandler> = emptyMap()
@@ -51,7 +51,7 @@ class ClickEventGuideScrim(
 }
 
 fun GuideScrim.withClickEvent(scrimClickData: () -> Map<Int, Pair<Rect, ClickHandler>> = { emptyMap() },
-                              containerClickData: Map<Int, ClickHandler> = emptyMap()): ClickEventGuideScrim = ClickEventGuideScrim(
+                              containerClickData: Map<Int, ClickHandler> = emptyMap()): SimpleClickEventGuideScrim = SimpleClickEventGuideScrim(
     guideScrim = this,
     scrimClickData = scrimClickData,
     containerClickData = containerClickData

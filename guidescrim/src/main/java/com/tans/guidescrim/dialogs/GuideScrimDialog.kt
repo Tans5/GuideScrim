@@ -25,6 +25,7 @@ abstract class GuideScrimDialog(private val ownerActivity: FragmentActivity,
     override fun onCreate(savedInstanceState: Bundle?) {
         setStyle(STYLE_NORMAL, dialogTheme)
         super.onCreate(savedInstanceState)
+        guideScrim.onDialogCreate(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,9 +37,14 @@ abstract class GuideScrimDialog(private val ownerActivity: FragmentActivity,
 
     abstract fun refreshScrimView(rootView: View): ScrimView
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        guideScrim.onDestroyView(scrimView)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        guideScrim.onDestroyView(scrimView)
+        guideScrim.onDialogDestroy(this)
     }
 
     fun show() {

@@ -10,7 +10,7 @@ import com.tans.guidescrim.ScrimView.Companion.HighLightDrawerData
  * date: 2019-12-04
  */
 
-class ContainerGuideScrim(
+class SimpleContainerGuideScrim(
     override val highLightViewIds: Array<Pair<Int, HighLightDrawerData>>,
     override val highLightData: Array<Pair<Int, HighLightDrawerData>>,
     override val scrimColor: Int,
@@ -20,7 +20,7 @@ class ContainerGuideScrim(
 
 
     companion object {
-        class Builder : GuideScrim.Companion.Builder<ContainerGuideScrim>() {
+        class Builder : GuideScrim.Companion.Builder<SimpleContainerGuideScrim>() {
 
             private var childrenLayoutIdsAndPosition = { emptyMap<Int, Point>() }
 
@@ -29,7 +29,7 @@ class ContainerGuideScrim(
                 return this
             }
 
-            override fun build(): ContainerGuideScrim = ContainerGuideScrim(
+            override fun build(): SimpleContainerGuideScrim = SimpleContainerGuideScrim(
                 highLightViewIds = highLightViewIds,
                 highLightData = highLightData,
                 scrimColor = scrimColor,

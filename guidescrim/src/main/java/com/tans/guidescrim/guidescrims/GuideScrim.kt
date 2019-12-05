@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import com.tans.guidescrim.R
 import com.tans.guidescrim.ScrimView
 import com.tans.guidescrim.ViewGetter
+import com.tans.guidescrim.dialogs.GuideScrimDialog
 import com.tans.guidescrim.dialogs.SimpleGuideScrimDialog
 
 /**
@@ -25,6 +26,10 @@ interface GuideScrim{
     val viewGetter: ViewGetter
 
 
+    fun onDialogCreate(dialog: GuideScrimDialog) {
+
+    }
+
     fun onCreateView(scrimView: ScrimView) {
         scrimView.addHighLightViewIds(data = *highLightViewIds, invalidate = false)
         scrimView.addHighLightAreas(data = *highLightData, invalidate = false)
@@ -34,6 +39,10 @@ interface GuideScrim{
 
     fun onDestroyView(scrimView: ScrimView?) {
         scrimView?.removeHighLightByIds(*(highLightData + highLightViewIds).map { it.first }.toIntArray())
+    }
+
+    fun onDialogDestroy(dialog: GuideScrimDialog) {
+
     }
 
     companion object {
